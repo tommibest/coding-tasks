@@ -29,7 +29,7 @@ class Solution {
     }
 
     //quicker
-    public int lengthOfLongestSubstring(String s) {
+    public int lengthOfLongestSubstringQuicker(String s) {
         if (s.length() == 0) return 0;
 
         int result = 1;

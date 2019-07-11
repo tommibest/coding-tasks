@@ -1,0 +1,45 @@
+package org.zaras.concurency.synch;
+
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.VarHandle;
+
+public class CounterJ9 {
+
+    private volatile int value;
+
+    private final static VarHandle VALUE;
+
+    static {
+        try {
+            VALUE = MethodHandles.lookup().findVarHandle(
+                    CounterJ9.class, "value", int.class
+            );
+        } catch (ReflectiveOperationException e) {
+            throw new Error(e);
+        }
+    }
+
+    public CounterJ9(int value) {
+        if (value < 0) throw new ArithmeticException();
+        this.value = value;
+    }
+
+    public synchronized int get() {
+        return value;
+    }
+
+    public int getAndIncrement() {
+        if (value == Integer.MAX_VALUE) throw new ArithmeticException("overflow");
+        return value++;
+    }
+
+    public int incrementAndGet() {
+        int current;
+        do {
+            current = value;
+            if (current == Integer.MAX_VALUE) throw new ArithmeticException("overflow");
+        } while (VALUE.compareAndSet(this, current, current + 1));
+        return current + 1;
+    }
+
+}
